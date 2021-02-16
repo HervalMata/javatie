@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.herval.javatie.domain.exception.EntidadeEmUsoException;
+import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
 import com.herval.javatie.domain.model.Categoria;
 import com.herval.javatie.domain.repository.CategoriaRepository;
+import com.herval.javatie.domain.service.CategoriaService;
 
 @RestController
 @RequestMapping("/categorias")
@@ -26,6 +29,9 @@ public class CategoriaController {
 	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
+	
+	@Autowired
+	private CategoriaService categoriaService;
 	
 	@GetMapping
 	public List<Categoria> listar() {
@@ -44,7 +50,7 @@ public class CategoriaController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public Categoria adicionar(@RequestBody Categoria categoria) {
-		return categoriaRepository.salvar(categoria);
+		return categoriaService.salvar(categoria);
 	}
 	
 	@PutMapping("/{categoriaId}")
@@ -61,14 +67,12 @@ public class CategoriaController {
 	@DeleteMapping("/{categoriaId}")
 	public ResponseEntity<Categoria> remover(@PathVariable Long categoriaId) {
 		try {
-			Categoria categoria = categoriaRepository.buscar(categoriaId);
-			if (categoria != null) {
-				categoriaRepository.remover(categoria);
-				return ResponseEntity.noContent().build();
-			}
-		} catch (DataIntegrityViolationException e) {
+			categoriaService.excluir(categoriaId);
+			return ResponseEntity.noContent().build();
+		} catch (EntidadeNaoEncontradaException e) {
+			return ResponseEntity.notFound().build();
+		}  catch (EntidadeEmUsoException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		}
-		return ResponseEntity.notFound().build();	
+		}	
 	}
 }

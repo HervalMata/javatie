@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.herval.javatie.domain.model.Categoria;
@@ -37,8 +38,11 @@ public class CategoriaRepositoryImpl implements CategoriaRepository {
 
 	@Transactional
 	@Override
-	public void remover(Categoria categoria) {
-		categoria = buscar(categoria.getId());
+	public void remover(Long id) {
+		Categoria categoria = buscar(id);
+		if (categoria == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
 		manager.remove(categoria);
 	}
 

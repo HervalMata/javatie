@@ -9,5 +9,5 @@ public interface CategoriaRepository {
 	List<Categoria> listar();
 	Categoria buscar(Long id);
 	Categoria salvar(Categoria categoria);
-	void remover(Categoria categoria);
+	void remover(Long id);
 }
