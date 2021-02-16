@@ -8,5 +8,5 @@ import com.herval.javatie.domain.model.Categoria;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-	List<Categoria> consultarPorNome(String nome);
+	List<Categoria> findByNome(String nome);
 }

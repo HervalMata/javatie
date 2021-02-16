@@ -41,7 +41,7 @@ public class CategoriaController {
 	
 	@GetMapping("/categorias/por-nome")
 	public List<Categoria> categoriasPorNome(@RequestParam String nome) {
-		return categoriaRepository.consultarPorNome(nome);
+		return categoriaRepository.findByNome(nome);
 	}
 	
 	@GetMapping("/{categoriaId}")
