@@ -2,12 +2,11 @@ package com.herval.javatie.domain.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.herval.javatie.domain.model.Categoria;
 
-public interface CategoriaRepository {
+public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-	List<Categoria> listar();
-	Categoria buscar(Long id);
-	Categoria salvar(Categoria categoria);
-	void remover(Long id);
+	List<Categoria> consultarPorNome(String nome);
 }

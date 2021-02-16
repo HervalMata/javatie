@@ -1,5 +1,9 @@
 package com.herval.javatie.domain.repository;
 
-public interface PermissaoRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.herval.javatie.domain.model.Permissao;
+
+public interface PermissaoRepository extends JpaRepository<Permissao, Long> {
 
 }

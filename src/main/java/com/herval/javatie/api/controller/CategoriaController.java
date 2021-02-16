@@ -1,6 +1,7 @@
 package com.herval.javatie.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,14 +36,19 @@ public class CategoriaController {
 	
 	@GetMapping
 	public List<Categoria> listar() {
-		return categoriaRepository.listar();
+		return categoriaRepository.findAll();
+	}
+	
+	@GetMapping("/categorias/por-nome")
+	public List<Categoria> categoriasPorNome(@RequestParam String nome) {
+		return categoriaRepository.consultarPorNome(nome);
 	}
 	
 	@GetMapping("/{categoriaId}")
 	public ResponseEntity<Categoria> buscar(@PathVariable Long categoriaId) {
-		Categoria categoria = categoriaRepository.buscar(categoriaId);
-		if (categoria != null) {
-			return ResponseEntity.ok(categoria);
+		Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
+		if (categoria.isPresent()) {
+			return ResponseEntity.ok(categoria.get());
 		}
 		return ResponseEntity.notFound().build();
 	}
@@ -54,11 +61,11 @@ public class CategoriaController {
 	
 	@PutMapping("/{categoriaId}")
 	public ResponseEntity<?> atualizar(@PathVariable Long categoriaId, @RequestBody Categoria categoria) {
-		Categoria categoriaAtual = categoriaRepository.buscar(categoriaId);
-		if (categoriaAtual != null) {
-			BeanUtils.copyProperties(categoria, categoriaAtual, "id");
-			categoriaRepository.salvar(categoriaAtual);
-			return ResponseEntity.ok(categoriaAtual);
+		Optional<Categoria> categoriaAtual = categoriaRepository.findById(categoriaId);
+		if (categoriaAtual.isPresent()) {
+			BeanUtils.copyProperties(categoria, categoriaAtual.get(), "id");
+			Categoria categoriaSalva = categoriaRepository.save(categoriaAtual.get());
+			return ResponseEntity.ok(categoriaSalva);
 		}
 		return ResponseEntity.notFound().build();
 	}
