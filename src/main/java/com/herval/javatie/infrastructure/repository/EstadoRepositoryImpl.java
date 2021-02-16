@@ -5,11 +5,10 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.herval.javatie.domain.model.Categoria;
 import com.herval.javatie.domain.model.Estado;
-import com.herval.javatie.domain.repository.CategoriaRepository;
 import com.herval.javatie.domain.repository.EstadoRepository;
 
 public class EstadoRepositoryImpl implements EstadoRepository {
@@ -35,7 +34,11 @@ public class EstadoRepositoryImpl implements EstadoRepository {
 
 	@Transactional
 	@Override
-	public void remover(Estado estado) {
+	public void remover(Long id) {
+		Estado estado = buscar(id);
+		if (estado == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
 		manager.remove(estado);
 	}
 
