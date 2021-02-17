@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.herval.javatie.domain.exception.EntidadeEmUsoException;
 import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
+import com.herval.javatie.domain.exception.EstadoNaoEncontradoException;
 import com.herval.javatie.domain.model.Categoria;
+import com.herval.javatie.domain.model.Cidade;
 import com.herval.javatie.domain.repository.CategoriaRepository;
 
 @Service
@@ -24,9 +26,13 @@ public class CategoriaService {
 		try {
 			categoriaRepository.deleteById(categoriaId);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de categoria com código %s", categoriaId));
+			throw new CategoriaNaoEncontradaException(String.format("Não existe um cadastro de categoria com código %s", categoriaId));
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format("Categoria com código %s não pode ser removida", categoriaId));
 		}
+	}
+	
+	public Categoria buscarOuFalhar(Long categoriaId) {
+		return categoriaRepository.findById(categoriaId).orElseThrow(() -> new EstadoNaoEncontradoException(categoriaId));
 	}
 }

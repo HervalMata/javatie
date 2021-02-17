@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 
 import com.herval.javatie.domain.exception.EntidadeEmUsoException;
 import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
+import com.herval.javatie.domain.exception.EstadoNaoEncontradoException;
+import com.herval.javatie.domain.exception.PermissaoNaoEncontradaException;
+import com.herval.javatie.domain.model.Cidade;
 import com.herval.javatie.domain.model.Permissao;
 import com.herval.javatie.domain.repository.PermissaoRepository;
 
@@ -24,9 +27,13 @@ public class PermissaoService {
 		try {
 			permissaoRepository.deleteById(permissaoId);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de permissão com código %s", permissaoId));
+			throw new PermissaoNaoEncontradaException(permissaoId));
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format("Permissão com código %s não pode ser removida", permissaoId));
 		}
+	}
+	
+	public Permissao buscarOuFalhar(Long permissaoId) {
+		return permissaoRepository.findById(permissaoId).orElseThrow(() -> new EstadoNaoEncontradoException(permissaoId));
 	}
 }

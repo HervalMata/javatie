@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.herval.javatie.infrastructure.repository.CustomRepositoryImpl;
+import com.herval.javatie.infrastructure.repository.CustomJpaRepositoryImpl;
 
 @SpringBootApplication
-@EnableJpaRepositories(repositoryBaseClass = CustomRepositoryImpl.class)
+@EnableJpaRepositories(repositoryBaseClass = CustomJpaRepositoryImpl.class)
 public class JavatieApplication {
 
     public static void main(String[] args) {

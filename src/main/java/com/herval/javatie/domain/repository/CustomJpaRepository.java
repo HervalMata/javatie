@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CustomRepository<T, ID> extends JpaRepository<T, ID> {
+public interface CustomJpaRepository<T, ID> extends JpaRepository<T, ID> {
 	Optional<T> buscarPrimeiro();
+	//T buscarOuFalhar(ID id) throws EntidadeNaoEncontradaException;
 }

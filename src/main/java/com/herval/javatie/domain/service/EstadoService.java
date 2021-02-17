@@ -6,12 +6,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.herval.javatie.domain.exception.EntidadeEmUsoException;
-import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
+import com.herval.javatie.domain.exception.EstadoNaoEncontradoException;
 import com.herval.javatie.domain.model.Estado;
 import com.herval.javatie.domain.repository.EstadoRepository;
 
 @Service
 public class EstadoService {
+	
+	private static final String MSG_ESTADO_EM_USO = "Estado de código %d não pode ser removido, pois está em uso";
 
 	@Autowired
 	private EstadoRepository estadoRepository;
@@ -24,9 +26,14 @@ public class EstadoService {
 		try {
 			estadoRepository.deleteById(estadoId);
 		} catch (EmptyResultDataAccessException e) {
-			throw new EntidadeNaoEncontradaException(String.format("Não existe um cadastro de estado com código %s", estadoId));
+			throw new EstadoNaoEncontradoException(estadoId);
 		} catch (DataIntegrityViolationException e) {
-			throw new EntidadeEmUsoException(String.format("Estado com código %s não pode ser removida", estadoId));
+			throw new EntidadeEmUsoException(String.format(MSG_ESTADO_EM_USO, estadoId));
 		}
+	}
+	
+	public Estado buscarOuFalhar(Long estadoId) {
+		return estadoRepository.findById(estadoId)
+				.orElseThrow(() -> new EstadoNaoEncontradoException(estadoId));
 	}
 }

@@ -1,12 +1,9 @@
 package com.herval.javatie.api.controller;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.herval.javatie.domain.exception.EntidadeEmUsoException;
 import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
+import com.herval.javatie.domain.exception.NegocioException;
 import com.herval.javatie.domain.model.Cidade;
 import com.herval.javatie.domain.repository.CidadeRepository;
 import com.herval.javatie.domain.service.CidadeService;
@@ -39,51 +36,34 @@ public class CidadeController {
 	}
 	
 	@GetMapping("/{cidadeId}")
-	public ResponseEntity<Cidade> buscar(@PathVariable Long cidadeId) {
-		Optional<Cidade> cidade = cidadeRepository.findById(cidadeId);
-		if (cidade.isPresent()) {
-			return ResponseEntity.ok(cidade.get());
-		}
-		return ResponseEntity.notFound().build();
+	public Cidade buscar(@PathVariable Long cidadeId) {
+		return cidadeService.buscarOuFalhar(cidadeId);
 	}
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade) {
+	public Cidade adicionar(@RequestBody Cidade cidade) {
 		try {
-			cidade = cidadeService.salvar(cidade);
-			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
+			return cidadeService.salvar(cidade);
 		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(cidade);
-		}
-	}
-	
-	@PutMapping("/{cidadeId}")
-	public ResponseEntity<?> atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
-		try {
-			Optional<Cidade> cidadeAtualOptional = cidadeRepository.findById(cidadeId);
-			if (cidadeAtualOptional.isPresent()) {
-				Cidade cidadeAtual = cidadeAtualOptional.get();
-				BeanUtils.copyProperties(cidade, cidadeAtual, "id");
-				cidadeService.salvar(cidadeAtual);
-				return ResponseEntity.ok(cidadeAtual);
-			}
-			return ResponseEntity.notFound().build();
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(cidade);
+			throw new NegocioException(e.getMessage());
 		}
 		
 	}
 	
-	@DeleteMapping("/{cidadeId}")
-	public ResponseEntity<Cidade> remover(@PathVariable Long cidadeId) {
+	@PutMapping("/{cidadeId}")
+	public Cidade atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
+		Cidade cidadeAtual = cidadeService.buscarOuFalhar(cidadeId);
+		BeanUtils.copyProperties(cidade, cidadeAtual, "id");
 		try {
-			cidadeService.excluir(cidadeId);
-			return ResponseEntity.noContent().build();
+			return cidadeService.salvar(cidadeAtual);
 		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.notFound().build();
-		}  catch (EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		}	
+			throw new NegocioException(e.getMessage());
+		}
+	}
+	
+	@DeleteMapping("/{cidadeId}")
+	public void remover(@PathVariable Long cidadeId) {
+		cidadeService.excluir(cidadeId);	
 	}
 }

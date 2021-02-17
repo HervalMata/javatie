@@ -1,12 +1,9 @@
 package com.herval.javatie.api.controller;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.herval.javatie.domain.exception.EntidadeEmUsoException;
-import com.herval.javatie.domain.exception.EntidadeNaoEncontradaException;
 import com.herval.javatie.domain.model.Categoria;
 import com.herval.javatie.domain.repository.CategoriaRepository;
 import com.herval.javatie.domain.service.CategoriaService;
@@ -45,12 +39,8 @@ public class CategoriaController {
 	}
 	
 	@GetMapping("/{categoriaId}")
-	public ResponseEntity<Categoria> buscar(@PathVariable Long categoriaId) {
-		Optional<Categoria> categoria = categoriaRepository.findById(categoriaId);
-		if (categoria.isPresent()) {
-			return ResponseEntity.ok(categoria.get());
-		}
-		return ResponseEntity.notFound().build();
+	public Categoria buscar(@PathVariable Long categoriaId) {
+		return categoriaService.buscarOuFalhar(categoriaId);
 	}
 	
 	@PostMapping
@@ -60,25 +50,16 @@ public class CategoriaController {
 	}
 	
 	@PutMapping("/{categoriaId}")
-	public ResponseEntity<?> atualizar(@PathVariable Long categoriaId, @RequestBody Categoria categoria) {
-		Optional<Categoria> categoriaAtual = categoriaRepository.findById(categoriaId);
-		if (categoriaAtual.isPresent()) {
-			BeanUtils.copyProperties(categoria, categoriaAtual.get(), "id");
-			Categoria categoriaSalva = categoriaRepository.save(categoriaAtual.get());
-			return ResponseEntity.ok(categoriaSalva);
-		}
-		return ResponseEntity.notFound().build();
+	public Categoria atualizar(@PathVariable Long categoriaId, @RequestBody Categoria categoria) {
+		Categoria categoriaAtual = categoriaService.buscarOuFalhar(categoriaId);
+		BeanUtils.copyProperties(categoria, categoriaAtual, "id");
+		return categoriaService.salvar(categoriaAtual);
+
 	}
 	
 	@DeleteMapping("/{categoriaId}")
-	public ResponseEntity<Categoria> remover(@PathVariable Long categoriaId) {
-		try {
-			categoriaService.excluir(categoriaId);
-			return ResponseEntity.noContent().build();
-		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.notFound().build();
-		}  catch (EntidadeEmUsoException e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
-		}	
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long categoriaId) {
+		categoriaService.excluir(categoriaId);
 	}
 }
